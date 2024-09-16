@@ -1,29 +1,5 @@
-<!DOCTYPE html>
 
-<html>
-<head>
-<script src="jquery-3.7.1.min.js"></script>
-<script type="text/javascript" src="index.js"></script>
-</head>
-
-<body>
-
-<h2>Reading Results</h2>
-<div id="Title"></div>
-<div id="Authors"></div>
-
-<script>
-
-<div id="booklist">
-
-    <h3 class="title"></h3>
-    <h3 class="authors"></h3>
-
-</div>
-
-/*
-$(function(){
-var longjson={
+{
  "kind": "books#volumes",
  "totalItems": 2341,
  "items": [
@@ -937,37 +913,4 @@ var longjson={
    }
   }
  ]
-};
-
-var json=JSON.parse(longjson);
-
-var bookHTML="";
-bookHTML+=json.items.volumeInfo.title;
-
-for (i in json.items.volumeInfo) {
-    bookHTML+="<br>" + json.items.volumeInfo[i].title
 }
-$("Title").html(bookHTML);
-})
-*/
-
-/*
-    $(function(){
-        $.getJSON("google-books-search.json", function (json) {
-            $("Title").html(json.items.volumeInfo.title + " - " + json.items.volumeInfo.authors);
-
-            var bookHTML="";
-
-            for (i in json.items.volumeInfo) {
-                bookHTML += "<br>" + json.items.volumeInfo[i].title + " - " + json.items.volumeInfo[i].authors;
-            }
-            $("#Title").html(bookHTML);
-        });
-    })
-*/
-
-</script>
-
-</body>
-
-</html>
