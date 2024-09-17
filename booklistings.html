@@ -931,14 +931,16 @@
 
 console.log(jsonList);
 
+for (let i = 0; i < jsonList.items.volumeInfo.length(); i++) {
+
 let text = "";
-for (let [title, value] of Object.entries(jsonList.items.title)) {
+for (let [title, value] of Object.entries(jsonList.items.volumeInfo)) {
     text += title + ": " + value + "<br>";
 }
 
 document.getElementById("processed").innerHTML = text;
 
-
+}
 
 </script>
 
