@@ -930,12 +930,13 @@
 };
 
 console.log(jsonList);
+var size = Object.keys(jsonList.items).length;
 
-for (let i = 0; i < jsonList.items.volumeInfo.length(); i++) {
+for (let i = 0; i < size; i++) {
 
 let text = "";
-for (let [title, value] of Object.entries(jsonList.items.volumeInfo)) {
-    text += title + ": " + value + "<br>";
+for (let [itemInfo, value] of Object.entries(jsonList.items)) {
+    text += itemInfo + ": " + value + "<br>";
 }
 
 document.getElementById("processed").innerHTML = text;
