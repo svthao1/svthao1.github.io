@@ -13,7 +13,7 @@
 
 <script type="text/javascript">
 
-    let jsonList={
+    const jsonList = {
  "kind": "books#volumes",
  "totalItems": 2341,
  "items": [
@@ -931,7 +931,12 @@
 
 console.log(jsonList);
 
-document.getElementById("processed").innerHTML = jsonList.items.title;
+let text = "";
+for (let [title, value] of Object.entries(jsonList)) {
+    text += title + ": " + value + "<br>";
+}
+
+document.getElementById("processed").innerHTML = text;
 
 
 
