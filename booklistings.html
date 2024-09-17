@@ -932,7 +932,7 @@
 console.log(jsonList);
 
 let text = "";
-for (let [title, value] of Object.entries(jsonList)) {
+for (let [title, value] of Object.entries(jsonList.items.title)) {
     text += title + ": " + value + "<br>";
 }
 
