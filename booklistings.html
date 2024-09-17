@@ -9,6 +9,7 @@
 <body>
 
 <h2>Reading Results</h2>
+<p id="processed"></p>
 
 <script type="text/javascript">
     let longjson={
@@ -927,7 +928,11 @@
  ]
 };
 
-console.log(longjson)
+let jsonProcessed = JSON.parse(longjson)
+
+console.log(jsonProcessed)
+
+document.getElementById("processed").innerHTML = jsonProcessed;
 
 /*
 $(function(){
