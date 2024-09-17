@@ -930,8 +930,9 @@
 };
 
 console.log(jsonList);
+const procList = JSON.parse(jsonList);
 
-document.getElementById("processed").innerHTML = jsonList;
+document.getElementById("processed").innerHTML = procList.items.title;
 
 </script>
 
