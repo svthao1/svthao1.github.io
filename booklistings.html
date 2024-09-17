@@ -12,6 +12,7 @@
 <p id="processed"></p>
 
 <script type="text/javascript">
+
     let longjson={
  "kind": "books#volumes",
  "totalItems": 2341,
@@ -928,7 +929,9 @@
  ]
 };
 
-console.log(jsonProcessed)
+console.log(longjson);
+
+const jsonString = JSON.stringify(longjson);
 
 document.getElementById("processed").innerHTML = longjson;
 
