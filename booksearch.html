@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .button {
+            padding: 16px 32px;
+            border-radius: 4px;
+            background-color: lightblue;
+            color: black;
+            border: 2px solid cornflowerblue;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 16px;
+            transition-duration: 0.5s;
+        }
+        .button:hover {
+            background-color: cornflowerblue;
+            color: black;
+        }
+        .book-item {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f8f8;
+            display: flex;
+        }
+        .book-item img {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Search Form -->
+<div style="padding: 100px; text-align: center;">
+    <form id="search-form">
+        <label for="bookname" style="font-size: 24px;">Search for a book:</label><br>
+        <input type="text" id="bookname" name="search" style="padding: 20px;"><br><br>
+        <button class="button" style="padding: 15px">Search</button><br><br><br>
+        <a href="milestone2.html" type="button" class="button">Back to Main Menu</a>
+    </form>
+</div>
+
+<!-- Div displays search results -->
+<div id="search-results" style="padding: 50px;"></div>
+
+<!-- Handle search and API request -->
+<script>
+    $(document).ready(function() {
+        let currentPage = 1; // initialize to the first page
+        const resultsPerPage = 15; // number of results per page
+        const maxResults = 60; // maximum results we want to display
+
+        // handle form submission
+        $('#search-form').on('submit', function(e) {
+            e.preventDefault();  // prevent page refresh
+            currentPage = 1;  // reset to the first page on new search
+            searchBooks();
+        });
+
+        // function to search for books and handle paging
+        function searchBooks() {
+            const query = $('#bookname').val();  // get user input
+            const startIndex = (currentPage - 1) * resultsPerPage;  // calculate start index for pagination
+            $('#current-page').text(`Page ${currentPage}`);  // update the page display
+
+            // build the API URL with paging
+            const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=${startIndex}&maxResults=${resultsPerPage}`;
+
+            // fetch data from Google Books API
+            $.getJSON(url, function(data) {
+                let resultsHtml = '';
+
+                // process each book in results
+                data.items.forEach(item => {
+                    const title = item.volumeInfo.title;
+                    const image = item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192';
+                    const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
+                    const description = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available';
+
+                    // generate html for each result
+                    resultsHtml += `
+                        <div class="book-item">
+                            <img src="${image}" alt="${title}">
+                            <div>
+                                <h3><a href="details.html?id=${item.id}">${title}</a></h3>
+                                <p><strong>Author(s):</strong> ${authors}</p>
+                                <p><strong>Description:</strong> ${description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // display results
+                $('#search-results').html(resultsHtml);
+
+                // update page controls with a dropdown for page selection
+                updatePageControls(data.totalItems);
+            }).fail(function() {
+                // handle errors
+                $('#search-results').html('<p>Error loading data. </p>');
+            });
+        }
+
+        // function to update the paging controls using a dropdown
+        function updatePageControls(totalItems) {
+            let totalPages = Math.ceil(Math.min(totalItems, maxResults) / resultsPerPage);  // calculate total number of pages
+            let pageControlsHtml = `<label for="page-select">Select Page:</label> <select id="page-select">`;
+
+            // create a dropdown option for each page
+            for (let i = 1; i <= totalPages; i++) {
+                pageControlsHtml += `<option value="${i}" ${i === currentPage ? 'selected' : ''}>${i}</option>`;  // pre-select the current page
+            }
+            pageControlsHtml += `</select>`;
+
+            $('#paging-controls').html(pageControlsHtml);  // insert dropdown into the page
+
+            // add event listener for dropdown change
+            $('#page-select').on('change', function() {
+                currentPage = parseInt($(this).val(), 15);  // update the current page and make sure it's an integer
+                searchBooks();  // refresh the search results
+            });
+        }
+    });
+</script>
+
+<!-- Add this HTML for page selection -->
+<div id="paging-controls" style="text-align: center; margin-top: 20px;"></div>
+<div id="search-results"></div>
+
+</body>
+</html>

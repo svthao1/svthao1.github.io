@@ -1,32 +1,29 @@
 <!DOCTYPE html>
-
 <html>
 <head>
 <script src="jquery-3.7.1.min.js"></script>
 
 <style>
-
-table, th, td {
-    border: 2px solid black;
-}
-
+    table, th, td {
+        border: 2px solid black;
+    }
 </style>
 
 </head>
-
 <body>
 
 <h2>Book List</h2>
 
 <!-- Table for processed info push -->
 <table style="width:100%">
-
     <tr>
-        <td id="processedTitles"></td>
-        <td id="processedAuthors"></td>
-        <td id="processedPublishDate"></td>
+        <th>Title</th>
+        <th>Author(s)</th>
+        <th>Publish Date</th>
     </tr>
-
+    <tbody id="book-list">
+        <!-- Dynamic content will go here -->
+    </tbody>
 </table>
 
 <script type="text/javascript">
@@ -947,48 +944,30 @@ table, th, td {
  ]
 };
 
-var size = Object.keys(jsonList.items).length;
+var size = jsonList.items.length;
 
-//Iterate/print through JSON book list
+// Iterate and display the list of books
 for (let i = 0; i < size; i++) {
+    const book = jsonList.items[i].volumeInfo;
+    const title = book.title;
+    const authors = book.authors ? book.authors.join(', ') : 'Unknown Author';
+    const publishDate = book.publishedDate || 'No Date Available';
 
-let text = "";
-for (let [i, value] of Object.entries(jsonList.items)) {
-    value = jsonList.items[i].volumeInfo.title;
-    text += i + ": " + value + "<br>";
+    // Create new table rows for each book
+    let row = `
+        <tr>
+            <td>${title}</td>
+            <td>${authors}</td>
+            <td>${publishDate}</td>
+        </tr>
+    `;
+
+    // Append the row to the table body
+    document.getElementById('book-list').innerHTML += row;
 }
-
-document.getElementById("processedTitles").innerHTML = text;
-}
-
-//Iterate/print through JSON authors
-for (let i = 0; i < size; i++) {
-
-let text = "";
-for (let [i, value] of Object.entries(jsonList.items)) {
-    value = jsonList.items[i].volumeInfo.authors;
-    text += i + ": " + value + "<br>";
-}
-
-document.getElementById("processedAuthors").innerHTML = text;
-}
-
-//Iterate/print through publish dates
-for (let i = 0; i < size; i++) {
-
-let text = "";
-for (let [i, value] of Object.entries(jsonList.items)) {
-    value = jsonList.items[i].volumeInfo.publishedDate;
-    text += i + ": " + value + "<br>";
-}
-
-document.getElementById("processedPublishDate").innerHTML = text;
-}
-
 </script>
 
 <a href="index.html" type="button" class="button">Back to Homepage</a>
 
 </body>
-
 </html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Book Details</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+.button {
+    padding: 16px 32px;
+    border-radius: 4px;
+    background-color: lightblue;
+    color: black;
+    border: 2px solid cornflowerblue;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    transition-duration: 0.5s;
+}
+.button:hover {
+    background-color: cornflowerblue;
+    color: black
+}
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="book-title">Loading...</h1>
+        <div class="book-item">
+            <img id="book-image" src="" alt="Book Cover"/>
+            <div id="book-info">
+                <p><strong>Author(s):</strong> <span id="book-authors"></span></p>
+                <p><strong>Publisher:</strong> <span id="book-publisher"></span></p>
+                <p><strong>Published Date:</strong> <span id="book-publishedDate"></span></p>
+                <p><strong>Pages:</strong> <span id="book-pages"></span></p>
+                <p><strong>Description:</strong></p>
+                <p id="book-description"></p>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    
+    <script>
+        // Run this when the page loads
+        $(document).ready(function() {
+            // Get the book ID from the URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id');
+    
+            // Check if the book ID exists
+            if (bookId) {
+                // Build the Google Books API URL with the book ID
+                const url = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
+    
+                // Make an API request to get book details
+                $.getJSON(url, function(data) {
+                    // Update the page with the book details
+                    $('#book-title').text(data.volumeInfo.title);
+                    $('#book-authors').text(data.volumeInfo.authors ? data.volumeInfo.authors.join(', ') : 'Unknown');
+                    $('#book-publisher').text(data.volumeInfo.publisher || 'Unknown');
+                    $('#book-publishedDate').text(data.volumeInfo.publishedDate || 'Not Available');
+                    $('#book-pages').text(data.volumeInfo.pageCount || 'N/A');
+                    $('#book-description').text(data.volumeInfo.description || 'No description available.');
+                    $('#book-image').attr('src', data.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192');
+                }).fail(function() {
+                    // Handle errors (e.g., if the API request fails)
+                    $('#book-title').text('Error loading book details.');
+                });
+            } else {
+                // If no book ID is provided in the URL, display an error
+                $('#book-title').text('No book selected.');
+            }
+        });
+    </script>
+</body>
+
+</html>
