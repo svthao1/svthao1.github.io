@@ -3,6 +3,12 @@
 <html>
 
 <head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Bookshelf</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <style>
 .button {
     padding: 16px 32px;
@@ -16,18 +22,90 @@
     transition-duration: 0.5s;
 }
 .button:hover {
-    background-color: cornflowerblue;
+    background-color: lightblue;
     color: black
 }
-
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: #749baf;
+    margin: 20px;
+}
+.container {
+    background-color: #e7efff;
+    padding: 20px;
+    border-radius: 8px;
+}
+.book-item {
+    margin-bottom: 20px;
+    border-bottom: 1px solid cornflowerblue;
+    padding-bottom: 20px;
+}
+.book-item img {
+    float: left;
+    margin-right: 20px;
+    border-radius: 8px;
+   }
+h1 {
+    font-size: 16px;
+}
+p {
+    font-size: 16px;
+}
+.clear {
+    clear: both;
+}
 </style>
 </head>
 
 <body>
 
-    
+    <div class="container">
+        <h1>Personal Bookshelf</h1>
+        <div id="bookshelf"></div>
+        <div class="clear"></div>
+    </div>
 
-<a href="milestone2.html" type="button" class="button">Back to Main Menu</a>
+    <script>
+
+$(document).ready(function() {
+
+        // Public bookshelf URL w/ API key
+        const url = `https://www.googleapis.com/books/v1/users/117386282234580429135/bookshelves/0/volumes?key=AIzaSyDg2G7yn0wcJSzLEQSjLFyy9wSMhGBN3_I`;
+
+        // API Request
+        $.getJSON(url, function(data) {
+            let booksHTML = '';
+
+            // Run through page w/ extracted info
+            data.items.forEach(function(item) {
+                const title = item.volumeInfo.title;
+                const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
+                const img = item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/140x200';
+                const desc = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available';
+
+                booksHTML += `
+                    <div class="book-item">
+                        <img src="${img}" alt="${title}">
+                        <div>
+                            <h2><a href="bookdetails.html?id=${item.id}">${title}</a></h2>
+                            <p><strong>Author(s):</strong> ${authors}</p>
+                            <p><strong>Description:</strong> ${desc}</p>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                `;
+            });
+
+            // Fill container w/ book data
+            $('#bookshelf').html(booksHTML);
+        }).fail(function() {
+            $('#bookshelf').html('<p>Data error!</p>');
+        });
+    });
+
+    </script>
+<br><br>
+<a href="milestone2.html" type="button" class="button">Back to Main Menu</a> <br><br>
 </body>
 
 </html>

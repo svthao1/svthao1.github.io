@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Search</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         .button {
             padding: 16px 32px;
@@ -22,10 +22,9 @@
             color: black;
         }
         .book-item {
-            border: 1px solid #ccc;
             padding: 20px;
             margin: 20px 0;
-            background-color: #f8f8f8;
+            background-color: #ceebff;
             display: flex;
         }
         .book-item img {
@@ -36,102 +35,96 @@
 
 <body>
 
-<!-- Search Form -->
 <div style="padding: 100px; text-align: center;">
-    <form id="search-form">
-        <label for="bookname" style="font-size: 24px;">Search for a book:</label><br>
-        <input type="text" id="bookname" name="search" style="padding: 20px;"><br><br>
+    <form id="search">
+        <label for="bookName" style="font-size: 24px;">Search for a book:</label><br>
+        <input type="text" id="bookName" name="search" style="padding: 20px;"><br><br>
         <button class="button" style="padding: 15px">Search</button><br><br><br>
         <a href="milestone2.html" type="button" class="button">Back to Main Menu</a>
     </form>
 </div>
 
-<!-- Div displays search results -->
-<div id="search-results" style="padding: 50px;"></div>
+<!-- Search results div -->
+<div id="results" style="padding: 50px;"></div>
 
-<!-- Handle search and API request -->
 <script>
     $(document).ready(function() {
-        let currentPage = 1; // initialize to the first page
-        const resultsPerPage = 15; // number of results per page
-        const maxResults = 60; // maximum results we want to display
+        let pageActive = 1;
+        const resultsPer = 15; // Max per page = 15, should be 4 pages to make 60 results max
+        const maxResults = 60; // ^^^
 
-        // handle form submission
-        $('#search-form').on('submit', function(e) {
-            e.preventDefault();  // prevent page refresh
-            currentPage = 1;  // reset to the first page on new search
+        $('#search').on('submit', function(e) {
+            e.preventDefault();
+            pageActive = 1;
             searchBooks();
         });
 
-        // function to search for books and handle paging
+        // Search function
         function searchBooks() {
-            const query = $('#bookname').val();  // get user input
-            const startIndex = (currentPage - 1) * resultsPerPage;  // calculate start index for pagination
-            $('#current-page').text(`Page ${currentPage}`);  // update the page display
+            const query = $('#bookName').val();
+            const startIndex = (pageActive - 1) * resultsPer;
+            $('#current_page').text(`Page ${pageActive}`);
 
-            // build the API URL with paging
-            const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=${startIndex}&maxResults=${resultsPerPage}`;
+            // Build URL w/ key
+            const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=${startIndex}&maxResults=${resultsPer}&key=AIzaSyDg2G7yn0wcJSzLEQSjLFyy9wSMhGBN3_I`;
 
-            // fetch data from Google Books API
+            // API request
             $.getJSON(url, function(data) {
-                let resultsHtml = '';
+                let HTMLInput = '';
 
-                // process each book in results
+                // Baseline model for each entry
                 data.items.forEach(item => {
                     const title = item.volumeInfo.title;
-                    const image = item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192';
-                    const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
-                    const description = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available';
+                    const img = item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/140x200';
+                    const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Author(s) unavailable';
+                    const desc = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'Description unavailable';
 
-                    // generate html for each result
-                    resultsHtml += `
+                    // HTML for each entry
+                    HTMLInput += `
                         <div class="book-item">
-                            <img src="${image}" alt="${title}">
+                            <img src="${img}" alt="${title}">
                             <div>
-                                <h3><a href="details.html?id=${item.id}">${title}</a></h3>
+                                <h2><a href="bookdetails.html?id=${item.id}">${title}</a></h2>
                                 <p><strong>Author(s):</strong> ${authors}</p>
-                                <p><strong>Description:</strong> ${description}</p>
+                                <p><strong>Description:</strong> ${desc}</p>
                             </div>
                         </div>
                     `;
                 });
 
-                // display results
-                $('#search-results').html(resultsHtml);
+                $('#results').html(HTMLInput);
 
-                // update page controls with a dropdown for page selection
+                // Dropdown menu
                 updatePageControls(data.totalItems);
+
             }).fail(function() {
-                // handle errors
-                $('#search-results').html('<p>Error loading data. </p>');
+                $('#results').html('<p>Data error or invalid/empty search detected!</p>');
             });
         }
 
-        // function to update the paging controls using a dropdown
+        // Page dropdown updater
         function updatePageControls(totalItems) {
-            let totalPages = Math.ceil(Math.min(totalItems, maxResults) / resultsPerPage);  // calculate total number of pages
-            let pageControlsHtml = `<label for="page-select">Select Page:</label> <select id="page-select">`;
+            let totalPages = Math.ceil(Math.min(totalItems, maxResults) / resultsPer);
+            let pageControlsHTML = `<label for="pageSelect">Select Page:</label> <select id="pageSelect">`;
 
-            // create a dropdown option for each page
+            // Page-specific dropdown
             for (let i = 1; i <= totalPages; i++) {
-                pageControlsHtml += `<option value="${i}" ${i === currentPage ? 'selected' : ''}>${i}</option>`;  // pre-select the current page
+                pageControlsHTML += `<option value="${i}" ${i === pageActive ? 'selected' : ''}>${i}</option>`;
             }
-            pageControlsHtml += `</select>`;
+            pageControlsHTML += `</select>`;
 
-            $('#paging-controls').html(pageControlsHtml);  // insert dropdown into the page
+            $('#pagingControls').html(pageControlsHTML);
 
-            // add event listener for dropdown change
-            $('#page-select').on('change', function() {
-                currentPage = parseInt($(this).val(), 15);  // update the current page and make sure it's an integer
-                searchBooks();  // refresh the search results
+            $('#pageSelect').on('change', function() {
+                pageActive = parseInt($(this).val(), 15);
+                searchBooks();
             });
         }
     });
 </script>
 
-<!-- Add this HTML for page selection -->
-<div id="paging-controls" style="text-align: center; margin-top: 20px;"></div>
-<div id="search-results"></div>
+<div id="pagingControls" style="text-align: center; margin-top: 20px;"></div>
+<div id="results"></div>
 
 </body>
 </html>

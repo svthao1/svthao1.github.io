@@ -4,7 +4,7 @@
 
 <head>
     <title>Book Details</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <style>
 .button {
     padding: 16px 32px;
@@ -26,53 +26,52 @@
 
 <body>
     <div class="container">
-        <h1 id="book-title">Loading...</h1>
+        <h1 id="bookTitle">Placeholder Title</h1>
         <div class="book-item">
-            <img id="book-image" src="" alt="Book Cover"/>
-            <div id="book-info">
-                <p><strong>Author(s):</strong> <span id="book-authors"></span></p>
-                <p><strong>Publisher:</strong> <span id="book-publisher"></span></p>
-                <p><strong>Published Date:</strong> <span id="book-publishedDate"></span></p>
-                <p><strong>Pages:</strong> <span id="book-pages"></span></p>
+            <img id="bookImage" src="" alt="Book Cover"/>
+            <div id="bookInfo">
+                <p><strong>Author(s):</strong> <span id="bookAuthors"></span></p>
+                <p><strong>Publisher:</strong> <span id="bookPublisher"></span></p>
+                <p><strong>Published Date:</strong> <span id="bookPublishedDate"></span></p>
+                <p><strong>Pages:</strong> <span id="bookPages"></span></p>
                 <p><strong>Description:</strong></p>
-                <p id="book-description"></p>
+                <p id="bookDescription"></p>
             </div>
         </div>
         <div class="clear"></div>
     </div>
     
     <script>
-        // Run this when the page loads
         $(document).ready(function() {
-            // Get the book ID from the URL parameters
+            // ID/URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const bookId = urlParams.get('id');
     
-            // Check if the book ID exists
             if (bookId) {
-                // Build the Google Books API URL with the book ID
-                const url = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
+                // Build API URL with API key
+                const url = `https://www.googleapis.com/books/v1/volumes/${bookId}?key=AIzaSyDg2G7yn0wcJSzLEQSjLFyy9wSMhGBN3_I`;
     
-                // Make an API request to get book details
+                // API request
                 $.getJSON(url, function(data) {
-                    // Update the page with the book details
-                    $('#book-title').text(data.volumeInfo.title);
-                    $('#book-authors').text(data.volumeInfo.authors ? data.volumeInfo.authors.join(', ') : 'Unknown');
-                    $('#book-publisher').text(data.volumeInfo.publisher || 'Unknown');
-                    $('#book-publishedDate').text(data.volumeInfo.publishedDate || 'Not Available');
-                    $('#book-pages').text(data.volumeInfo.pageCount || 'N/A');
-                    $('#book-description').text(data.volumeInfo.description || 'No description available.');
-                    $('#book-image').attr('src', data.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192');
+                    // Run through page w/ extracted info
+                    $('#bookTitle').text(data.volumeInfo.title);
+                    $('#bookAuthors').text(data.volumeInfo.authors ? data.volumeInfo.authors.join(', ') : 'Unknown Author(s)');
+                    $('#bookPublisher').text(data.volumeInfo.publisher || 'Unknown Publisher');
+                    $('#bookPublishedDate').text(data.volumeInfo.publishedDate || 'Not Available');
+                    $('#bookPages').text(data.volumeInfo.pageCount || 'N/A');
+                    $('#bookDescription').text(data.volumeInfo.description || 'No description available.');
+                    $('#bookImage').attr('src', data.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/140x200');
                 }).fail(function() {
-                    // Handle errors (e.g., if the API request fails)
-                    $('#book-title').text('Error loading book details.');
+                    $('#bookTitle').text('Data error!');
                 });
             } else {
-                // If no book ID is provided in the URL, display an error
-                $('#book-title').text('No book selected.');
+                $('#bookTitle').text('Book has not been selected by user!');
             }
         });
     </script>
+<br>
+<a href="booksearch.html" type="button" class="button" style="margin-right:10px">Back to Book Search</a> <br><br><br>
+<a href="bookshelf.html" type="button" class="button" style="margin-right:10px">Back to Personal Bookshelf</a>
 </body>
 
 </html>
