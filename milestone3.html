@@ -12,10 +12,10 @@
             margin: 20px;
         }
         .book-details-container {
-            background-color: white; /* White background */
-            padding: 20px; /* Padding inside the box */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         header {
             background-color: #4a7c9d;
@@ -130,25 +130,25 @@
             const resultsPerPage = 10;
             const maxResults = 50;
     
-            // Search form submission
+            // Search form handling
             $('#searchForm').on('submit', function(e) {
                 e.preventDefault();
                 currentPage = 1;
                 searchBooks();
             });
     
-            // Bookshelf button
+            // Bookshelf button click handling
             $('#myBookshelf').on('click', function(e) {
                 e.preventDefault();
                 loadBookshelf();
             });
     
-            // Close panel
+            // Close button functionality
             $('#closePanel').on('click', function() {
                 $('#sidePanel').hide();
             });
     
-            // Load bookshelf
+            // Retrieve and display curated bookshelf
             function loadBookshelf() {
                 const url = `https://www.googleapis.com/books/v1/users/117386282234580429135/bookshelves/0/volumes?key=${API_KEY}`;
                 
@@ -174,13 +174,13 @@
                     });
 
                     $('#searchResults').html(resultsHtml);
-                    $('#pagingControls').hide(); // Hide pagination controls when viewing the bookshelf
+                    $('#pagingControls').hide(); // Hide page select when viewing the bookshelf
                 }).fail(function() {
                     $('#searchResults').html('<p>Data error!</p>');
                 });
             }
     
-            // Search for books
+            // Search for books based on user input query
             function searchBooks() {
                 const query = $('#searchQuery').val();
                 const startIndex = (currentPage - 1) * resultsPerPage;
@@ -209,14 +209,14 @@
                     });
 
                     $('#searchResults').html(resultsHtml);
-                    $('#pagingControls').show(); // Show pagination controls when performing a search
+                    $('#pagingControls').show(); // Show page controls after searching
                     updatePageControls(data.totalItems);
                 }).fail(function() {
-                    $('#searchResults').html('<p>Data error!.</p>');
+                    $('#searchResults').html('<p>Data error!</p>');
                 });
             }
     
-            // Update pagination controls
+            // Refresh page select based on results amount
             function updatePageControls(totalItems) {
                 let totalPages = Math.ceil(Math.min(totalItems, maxResults) / resultsPerPage);
                 let pageControlsHtml = 'Page: ';
@@ -231,14 +231,14 @@
     
                 $('#pagingControls').html(pageControlsHtml);
     
-                // Add click event to the buttons
+                // Attach click to each page button
                 $('.page-button').on('click', function() {
                     currentPage = parseInt($(this).data('page'), 10);
                     searchBooks();
                 });
             }
     
-            // Handle book title click
+            // Info/details about selected book
             $(document).on('click', '.book-title', function(e) {
                 e.preventDefault();
                 const bookId = $(this).data('id');
@@ -271,10 +271,10 @@
                     `;
     
                     $('#bookDetails').html(bookHtml);
-                    $('#sidePanel').show();
+                    $('#sidePanel').show(); // Display side panel w/ book-specific details
                 }).fail(function() {
                     $('#bookDetails').html('<p>Data error!</p>');
-                    $('#sidePanel').show();
+                    $('#sidePanel').show(); // Show side panel on error
                 });
             });
         });
