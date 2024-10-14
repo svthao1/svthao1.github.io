@@ -1,17 +1,284 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-<style>
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search - Single</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #749baf;
+            margin: 20px;
+        }
+        .book-details-container {
+            background-color: white; /* White background */
+            padding: 20px; /* Padding inside the box */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+        header {
+            background-color: #4a7c9d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid hsl(204, 24%, 27%);
+        }
+        form {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            padding: 16px 32px;
+            border-radius: 4px;
+            background-color: rgb(206, 238, 248);
+            color: black;
+            border: 2px solid cornflowerblue;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 16px;
+            transition-duration: 0.5s;
+        }
+        .button:hover {
+            background-color: rgb(163, 194, 250);
+            color: black;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .book-item {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .book-item:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .book-item img {
+            margin-right: 20px;
+            border-radius: 4px;
+            width: 128px;
+            height: auto;
+        }
+        .book-item h3 {
+            margin: 0;
+            font-size: 1.7em;
+            color: #222;
+            font-family: 'Georgia', serif;
+        }
+        .book-item p {
+            margin: 5px 0;
+            font-size: 1em;
+            line-height: 1.5em;
+            font-family: 'Arial', sans-serif;
+        }
+        .side-panel {
+            width: 50%;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            background-color: #bfd8e9;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .page-button.selected {
+            background-color: cornflowerblue;
+            color: white;
+            border: 2px solid darkblue;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>milestone 3 test</h1>
+    <header>
+        <h1 style="font-family: 'Georgia', serif; color: #e6f2ff;">Book Search - SPA</h1>
+    </header>
+    
+    <form id="searchForm" style="padding: 15px">
+        <input type="text" id="searchQuery" style="width: 300px; height: 40px;" placeholder="Enter title/keyword query">
+        <button type="submit" class="button">Search!</button><br><br><br>
+        <a href="index.html" type="button" class="button">Back to Homepage</a>
+        <a href="#" id="myBookshelf" type="button" class="button">Curated Bookshelf</a>
+    </form>
+    
+    <div id="pagingControls" style="text-align: center; margin-top: 20px;"></div>
+    <div id="searchResults"></div>
+    
+    <div id="sidePanel" class="side-panel" style="display: none;">
+        <button id="closePanel" style="float: right;">Close</button>
+        <div id="bookDetails"></div>
+    </div>
+    
+    <script>
+        const API_KEY = 'AIzaSyDg2G7yn0wcJSzLEQSjLFyy9wSMhGBN3_I';
+    
+        $(document).ready(function() {
+            let currentPage = 1;
+            const resultsPerPage = 10;
+            const maxResults = 50;
+    
+            // Search form submission
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                currentPage = 1;
+                searchBooks();
+            });
+    
+            // Bookshelf button
+            $('#myBookshelf').on('click', function(e) {
+                e.preventDefault();
+                loadBookshelf();
+            });
+    
+            // Close panel
+            $('#closePanel').on('click', function() {
+                $('#sidePanel').hide();
+            });
+    
+            // Load bookshelf
+            function loadBookshelf() {
+                const url = `https://www.googleapis.com/books/v1/users/117386282234580429135/bookshelves/0/volumes?key=${API_KEY}`;
+                
+                $.getJSON(url, function(data) {
+                    let resultsHtml = '';
 
-</body>
+                    data.items.forEach(function(item) {
+                        const title = item.volumeInfo.title;
+                        const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
+                        const image = item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192';
+                        const description = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available';
 
+                        resultsHtml += `
+                            <div class="book-item">
+                                <img src="${image}" alt="${title}">
+                                <div>
+                                    <h3><a href="#" data-id="${item.id}" class="book-title">${title}</a></h3>
+                                    <p><strong>Author(s):</strong> ${authors}</p>
+                                    <p><strong>Description:</strong> ${description}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    $('#searchResults').html(resultsHtml);
+                    $('#pagingControls').hide(); // Hide pagination controls when viewing the bookshelf
+                }).fail(function() {
+                    $('#searchResults').html('<p>Data error!</p>');
+                });
+            }
+    
+            // Search for books
+            function searchBooks() {
+                const query = $('#searchQuery').val();
+                const startIndex = (currentPage - 1) * resultsPerPage;
+
+                const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=${startIndex}&maxResults=${resultsPerPage}&key=${API_KEY}`;
+
+                $.getJSON(url, function(data) {
+                    let resultsHtml = '';
+
+                    data.items.forEach(item => {
+                        const title = item.volumeInfo.title;
+                        const image = item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192';
+                        const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
+                        const description = item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available';
+
+                        resultsHtml += `
+                            <div class="book-item">
+                                <img src="${image}" alt="${title}">
+                                <div>
+                                    <h3><a href="#" data-id="${item.id}" class="book-title">${title}</a></h3>
+                                    <p><strong>Author(s):</strong> ${authors}</p>
+                                    <p><strong>Description:</strong> ${description}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    $('#searchResults').html(resultsHtml);
+                    $('#pagingControls').show(); // Show pagination controls when performing a search
+                    updatePageControls(data.totalItems);
+                }).fail(function() {
+                    $('#searchResults').html('<p>Data error!.</p>');
+                });
+            }
+    
+            // Update pagination controls
+            function updatePageControls(totalItems) {
+                let totalPages = Math.ceil(Math.min(totalItems, maxResults) / resultsPerPage);
+                let pageControlsHtml = 'Page: ';
+    
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentPage) {
+                        pageControlsHtml += `<button class="page-button selected" data-page="${i}">${i}</button>`;
+                    } else {
+                        pageControlsHtml += `<button class="page-button" data-page="${i}">${i}</button>`;
+                    }
+                }
+    
+                $('#pagingControls').html(pageControlsHtml);
+    
+                // Add click event to the buttons
+                $('.page-button').on('click', function() {
+                    currentPage = parseInt($(this).data('page'), 10);
+                    searchBooks();
+                });
+            }
+    
+            // Handle book title click
+            $(document).on('click', '.book-title', function(e) {
+                e.preventDefault();
+                const bookId = $(this).data('id');
+                const url = `https://www.googleapis.com/books/v1/volumes/${bookId}?key=${API_KEY}`;
+    
+                $.getJSON(url, function(data) {
+                    let book = data.volumeInfo;
+                    let industryIdentifiers = book.industryIdentifiers ? 
+                        book.industryIdentifiers.map(i => `${i.type}: ${i.identifier}`).join(', ') : 'N/A';
+                    let categories = book.categories ? book.categories.join(', ') : 'No categories';
+                    let dimensions = book.dimensions ? 
+                        `Height: ${book.dimensions.height}, Width: ${book.dimensions.width}` : 'N/A';
+                    let coverImage = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192';
+    
+                    let bookHtml = `
+                    <div class="book-details-container">
+                        <img src="${coverImage}" alt="Book Cover" class="book-cover">
+                        <div>
+                            <h3>${book.title}</h3>
+                            <p><strong>Subtitle:</strong> ${book.subtitle || 'N/A'}</p>
+                            <p><strong>Authors:</strong> ${book.authors ? book.authors.join(', ') : 'Unknown'}</p>
+                            <p><strong>Publisher:</strong> ${book.publisher || 'N/A'}</p>
+                            <p><strong>Published Date:</strong> ${book.publishedDate || 'N/A'}</p>
+                            <p><strong>Description:</strong> ${book.description || 'N/A'}</p>
+                            <p><strong>Industry Identifiers:</strong> ${industryIdentifiers}</p>
+                            <p><strong>Categories:</strong> ${categories}</p>
+                            <p><strong>Dimensions:</strong> ${dimensions}</p>
+                        </div>
+                    </div>    
+                    `;
+    
+                    $('#bookDetails').html(bookHtml);
+                    $('#sidePanel').show();
+                }).fail(function() {
+                    $('#bookDetails').html('<p>Data error!</p>');
+                    $('#sidePanel').show();
+                });
+            });
+        });
+    </script>
+
+</body>     
 </html>
