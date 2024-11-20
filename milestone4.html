@@ -267,7 +267,7 @@
                     const rendered = Mustache.render(template, { books });
 
                     $('#searchResults').html(rendered);  // Display bookshelf as search result
-                    animateBooks();  // Optional: animate the display
+                    animateBooks();  // Animate display
                 }).fail(function() {
                     $('#searchResults').html('<p>Failed to load bookshelf!</p>');
                 });
@@ -318,7 +318,7 @@
                     const element = $(this);
                     setTimeout(function() {
                         element.addClass('visible');
-                    }, index * 100); // Staggered animation effect
+                    }, index * 100); // Stagger animation
                 });
             }
     
