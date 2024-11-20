@@ -1,17 +1,360 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search - Single Page v2</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js"></script>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #749baf;
+            margin: 20px;
+        }
+        .book-details-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background-color: #4a7c9d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid hsl(204, 24%, 27%);
+        }
+        form {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            padding: 16px 32px;
+            border-radius: 4px;
+            background-color: rgb(206, 238, 248);
+            color: black;
+            border: 2px solid cornflowerblue;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 16px;
+            transition-duration: 0.5s;
+        }
+        .button:hover {
+            background-color: rgb(163, 194, 250);
+            color: black;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .book-item {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+            background-color: #bfd8e9;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
 
-</style>
+        .book-item.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .book-item:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .book-item img {
+            margin-right: 20px;
+            border-radius: 4px;
+            width: 128px;
+            height: auto;
+        }
+        .book-item h3 {
+            margin: 0;
+            font-size: 1.7em;
+            color: #222;
+            font-family: 'Georgia', serif;
+        }
+        .book-item p {
+            margin: 5px 0;
+            font-size: 1em;
+            line-height: 1.5em;
+            font-family: 'Arial', sans-serif;
+        }
+        .side-panel {
+            width: 50%;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            background-color: #bfd8e9;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Grid view */
+        #searchResults.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjust size */
+            gap: 20px;
+        }
+
+        #searchResults.grid-view .book-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Page buttons style */
+        .page-button.selected {
+            background-color: cornflowerblue;
+            color: white;
+            border: 2px solid darkblue;
+        }
+    </style>
 </head>
 
 <body>
+    <header>
+        <h1 style="font-family: 'Georgia', serif; color: #e6f2ff;">Book Search - Single Page Application</h1>
+    </header>
+    
+    <form id="searchForm" style="padding: 15px">
+        <input type="text" id="searchQuery" style="width: 300px; height: 40px;" placeholder="Enter title/keyword query">
+        <button type="submit" class="button">Search!</button><br><br><br>
+        <a href="index.html" type="button" class="button">Back to Homepage</a>
+        <a href="#" id="myBookshelf" type="button" class="button">Curated Bookshelf</a>
+        <br><br><br>
+        <!-- Toggle button for list/grid view -->
+        <button id="toggleView" type="button" class="button" style="background-color:#afc1dd;">Switch to Grid View</button>
+    </form>
+    
+    <div id="pagingControls" style="text-align: center; margin-top: 20px;"></div>
+    <div id="searchResults" class="list-view"></div> <!-- Default view is list view -->
+    
+    <div id="sidePanel" class="side-panel" style="display: none;">
+        <button id="closePanel" style="float: right;">Close</button>
+        <div id="bookDetails"></div>
+    </div>
 
-<h1>milestone 4 test</h1>
+    <!-- Templates -->
+    <script id="search-results-template" type="text/template">
+        {{#books}}
+        <div class="book-item">
+            <img src="{{image}}" alt="{{title}}">
+            <div>
+                <h3><a href="#" data-id="{{id}}" class="book-title">{{title}}</a></h3>
+                <p><strong>Author(s):</strong> {{authors}}</p>
+                <p><strong>Description:</strong> {{description}}</p>
+            </div>
+        </div>
+        {{/books}}
+    </script>
 
+    <script id="book-details-template" type="text/template">
+        <div class="book-details-container">
+            <img src="{{image}}" alt="Book Cover" class="book-cover">
+            <div>
+                <h3>{{title}}</h3>
+                <p><strong>Subtitle:</strong> {{subtitle}}</p>
+                <p><strong>Authors:</strong> {{authors}}</p>
+                <p><strong>Publisher:</strong> {{publisher}}</p>
+                <p><strong>Published Date:</strong> {{publishedDate}}</p>
+                <p><strong>Description:</strong> {{description}}</p>
+                <p><strong>Industry Identifiers:</strong> {{industryIdentifiers}}</p>
+                <p><strong>Categories:</strong> {{categories}}</p>
+                <p><strong>Dimensions:</strong> {{dimensions}}</p>
+            </div>
+        </div>
+    </script>
+
+    <script id="bookshelf-template" type="text/template">
+        {{#books}}
+        <div class="book-item">
+            <img src="{{image}}" alt="{{title}}">
+            <div>
+                <h3><a href="#" data-id="{{id}}" class="book-title">{{title}}</a></h3>
+                <p><strong>Author(s):</strong> {{authors}}</p>
+                <p><strong>Description:</strong> {{description}}</p>
+            </div>
+        </div>
+        {{/books}}
+    </script>
+
+    <script>
+        const API_KEY = 'AIzaSyDg2G7yn0wcJSzLEQSjLFyy9wSMhGBN3_I';
+    
+        $(document).ready(function() {
+            let currentPage = 1;
+            const resultsPerPage = 14;
+            const maxResults = 50;
+
+            // Toggle between list and grid views
+            $('#toggleView').on('click', function() {
+                const currentView = $('#searchResults').hasClass('list-view') ? 'list' : 'grid';
+                if (currentView === 'list') {
+                    $('#searchResults').removeClass('list-view').addClass('grid-view');
+                    $(this).text('Switch to List View');
+                } else {
+                    $('#searchResults').removeClass('grid-view').addClass('list-view');
+                    $(this).text('Switch to Grid View');
+                }
+            });
+    
+            // Search form handling
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                currentPage = 1;
+                searchBooks();
+            });
+    
+            // Search for books
+            function searchBooks() {
+                const query = $('#searchQuery').val();
+                if (!query) {
+                    alert("Please enter a search term.");
+                    return;
+                }
+                
+                const startIndex = (currentPage - 1) * resultsPerPage;
+                const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&startIndex=${startIndex}&maxResults=${resultsPerPage}&key=${API_KEY}`;
+    
+                $.getJSON(url, function(data) {
+                    const books = data.items.map(item => ({
+                        id: item.id,
+                        title: item.volumeInfo.title,
+                        image: item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192',
+                        authors: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                        description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available'
+                    }));
+    
+                    const template = $('#search-results-template').html();
+                    const rendered = Mustache.render(template, { books });
+    
+                    $('#searchResults').html(rendered);
+                    updatePageControls(data.totalItems); // Update pagination controls
+                    animateBooks();
+                }).fail(function() {
+                    $('#searchResults').html('<p>Data error!</p>');
+                });
+            }
+
+            // Fetch the curated bookshelf data
+            $('#myBookshelf').on('click', function(e) {
+                e.preventDefault();
+                const url = `https://www.googleapis.com/books/v1/users/117386282234580429135/bookshelves/0/volumes?key=${API_KEY}`;
+
+                $.getJSON(url, function(data) {
+                    const books = data.items.map(item => ({
+                        id: item.id,
+                        title: item.volumeInfo.title,
+                        image: item.volumeInfo.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192',
+                        authors: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                        description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 150) + '...' : 'No description available'
+                    }));
+
+                    const template = $('#bookshelf-template').html();
+                    const rendered = Mustache.render(template, { books });
+
+                    $('#searchResults').html(rendered);  // Display bookshelf as search result
+                    animateBooks();  // Optional: animate the display
+                }).fail(function() {
+                    $('#searchResults').html('<p>Failed to load bookshelf!</p>');
+                });
+            });
+
+    
+            // Update page controls
+            function updatePageControls(totalItems) {
+                const totalPages = Math.ceil(totalItems / resultsPerPage);
+                const maxPageButtons = 10; // Max number of page buttons to show
+
+                let pageControlsHtml = 'Page: ';
+                let startPage, endPage;
+
+                // Determine the range of pages to display
+                if (totalPages <= maxPageButtons) {
+                    startPage = 1;
+                    endPage = totalPages;
+                } else {
+                    // Show a range around the current page
+                    const middlePage = Math.ceil(maxPageButtons / 2);
+                    if (currentPage <= middlePage) {
+                        startPage = 1;
+                        endPage = maxPageButtons;
+                    } else if (currentPage + middlePage - 1 >= totalPages) {
+                        startPage = totalPages - maxPageButtons + 1;
+                        endPage = totalPages;
+                    } else {
+                        startPage = currentPage - middlePage + 1;
+                        endPage = currentPage + middlePage - 1;
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pageControlsHtml += `<button class="page-button ${i === currentPage ? 'selected' : ''}" data-page="${i}">${i}</button> `;
+                }
+
+                $('#pagingControls').html(pageControlsHtml);
+                $('.page-button').on('click', function() {
+                    currentPage = $(this).data('page');
+                    searchBooks();
+                });
+            }
+    
+            // Animate books when they appear on screen
+            function animateBooks() {
+                $('.book-item').each(function(index) {
+                    const element = $(this);
+                    setTimeout(function() {
+                        element.addClass('visible');
+                    }, index * 100); // Staggered animation effect
+                });
+            }
+    
+            // Show book details in the side panel
+            $(document).on('click', '.book-title', function(e) {
+                e.preventDefault();
+    
+                const bookId = $(this).data('id');
+                const url = `https://www.googleapis.com/books/v1/volumes/${bookId}?key=${API_KEY}`;
+    
+                $.getJSON(url, function(data) {
+                    const bookDetails = {
+                        image: data.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192',
+                        title: data.volumeInfo.title,
+                        subtitle: data.volumeInfo.subtitle || 'No subtitle',
+                        authors: data.volumeInfo.authors.join(', ') || 'Unknown Author',
+                        publisher: data.volumeInfo.publisher || 'Unknown Publisher',
+                        publishedDate: data.volumeInfo.publishedDate || 'Unknown Date',
+                        description: data.volumeInfo.description || 'No description available',
+                        industryIdentifiers: data.volumeInfo.industryIdentifiers.map(identifier => `${identifier.type}: ${identifier.identifier}`).join(', ') || 'N/A',
+                        categories: data.volumeInfo.categories ? data.volumeInfo.categories.join(', ') : 'N/A',
+                        dimensions: data.volumeInfo.dimensions ? `${data.volumeInfo.dimensions.height} x ${data.volumeInfo.dimensions.width} cm` : 'N/A'
+                    };
+    
+                    const template = $('#book-details-template').html();
+                    const rendered = Mustache.render(template, bookDetails);
+                    $('#bookDetails').html(rendered);
+                    $('#sidePanel').show();
+                });
+            });
+    
+            // Close the side panel
+            $('#closePanel').on('click', function() {
+                $('#sidePanel').hide();
+            });
+        });
+    </script>
 </body>
-
 </html>
