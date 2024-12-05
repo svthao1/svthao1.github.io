@@ -103,7 +103,7 @@
 
         #searchResults.grid-view {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjust size */
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
         }
 
@@ -114,7 +114,6 @@
             padding: 10px;
         }
 
-        /* Page buttons style */
         .page-button.selected {
             background-color: rgb(158, 0, 0);
             color: white;
@@ -123,15 +122,15 @@
 
         .cast-container {
             display: flex;
-            gap: 20px; /* Space between cast members */
+            gap: 20px;
             margin-top: 10px;
-            flex-wrap: wrap; /* Ensure wrapping if there are too many members */
+            flex-wrap: wrap;
         }
 
         .cast-member {
             text-align: center;
-            flex: 1; /* Distributes available space evenly */
-            max-width: 100px; /* Limit the width of each cast member */
+            flex: 1; 
+            max-width: 100px;
         }
 
         .cast-photo {
@@ -177,106 +176,99 @@
 
         /* Actor's Name Text */
         #actorDetailsPopup h3 {
-            text-align: justify; /* Center the text horizontally */
-            margin-top: 0; /* Remove any default margin at the top */
-            font-size: 1.5em; /* Adjust font size as necessary */
-            font-weight: bold; /* Optional: make it bold for emphasis */
+            text-align: justify;
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: bold;
         }
 
-
-        /* Actor image (styled as per the original layout) */
         #actorImage {
             margin: 0 auto;
             border-radius: 4px;
         }
 
-        /* Biography container - added scrolling functionality */
         #actorBiography {
-            max-height: 200px; /* Fixed height for the biography area */
-            overflow-y: auto; /* Make the biography scrollable */
+            max-height: 200px;
+            overflow-y: auto;
             margin-top: 15px;
-            padding-right: 10px; /* Add a little padding to avoid text touching the scrollbar */
+            padding-right: 10px;
         }
 
-        /* Close button for the actor pop-up */
         #closePopup {
-            background-color: #f44336; /* Red background for the close button */
+            background-color: #f44336;
             color: white;
             border: none;
             padding: 10px;
             cursor: pointer;
             border-radius: 4px;
-            margin-bottom: 10px; /* Optional: add some space from the top */
+            margin-bottom: 10px;
         }
 
-        /* Hover effect for the close button */
+
         #closePopup:hover {
             background-color: #d32f2f;
         }
 
         .actor-name-link {
-            color: #007bff; /* Blue color like a typical hyperlink */
+            color: #007bff;
             text-decoration: underline;
-            cursor: pointer; /* Pointer cursor for interactivity */
+            cursor: pointer;
         }
 
         .actor-name-link:hover {
-            color: #0056b3; /* Darker blue on hover */
+            color: #0056b3; 
         }
 
         .movie-item {
-            background-color: white; /* White background */
-            border-radius: 10px;    /* Rounded edges */
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            margin: 10px;           /* Space around each item */
-            padding: 15px;          /* Inner padding */
-            display: flex;          /* Default layout for list view */
-            align-items: center;    /* Align content vertically */
-            gap: 10px;              /* Space between elements */
-            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover effects */
+            background-color: white;
+            border-radius: 10px; 
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* Adjust for grid view */
         .grid-view .movie-item {
-            flex-direction: column; /* Stack content vertically */
-            align-items: flex-start; /* Align to the start */
-            text-align: center;     /* Center text in grid view */
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: center;
         }
 
-        /* Hover effect */
         .movie-item:hover {
-            transform: scale(1.02); /* Slightly enlarge */
-            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15); /* Darker shadow */
+            transform: scale(1.02);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Style for the movie title link */
         .movie-item a.movie-title {
-            text-decoration: none;  /* Remove underline */
-            color: #0077cc;         /* Link color */
-            font-weight: bold;      /* Emphasize the title */
+            text-decoration: none;
+            color: #0077cc;
+            font-weight: bold;
         }
 
         .movie-item a.movie-title:hover {
-            text-decoration: underline; /* Underline on hover */
+            text-decoration: underline;
         }
 
         .movie-item img {
-            max-width: 100px; /* Adjust width for smaller images */
-            height: auto;     /* Maintain aspect ratio */
-            border-radius: 5px; /* Keep the rounded edges */
-            object-fit: cover;  /* Ensures consistent scaling */
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+            object-fit: cover;
         }
 
         .grid-view .movie-item img {
-            max-width: 130px; /* Larger for grid */
+            max-width: 130px;
         }
 
         .list-view .movie-item img {
-            max-width: 100px; /* Smaller for list */
+            max-width: 100px;
         }
 
         .action-buttons {
-            margin-top: 20px; /* Add spacing between movie details and buttons */
+            margin-top: 20px;
         }
 
         .action-buttons .button {
@@ -284,7 +276,7 @@
             margin-right: 10px;
             padding: 8px 12px;
             font-size: 14px;
-            background-color: #a00000; /* Default green color for the buttons */
+            background-color: #a00000;
             color: white;
             border: none;
             border-radius: 5px;
@@ -292,19 +284,19 @@
         }
 
         .action-buttons .button:hover {
-            background-color: #750000; /* Slightly darker green on hover */
+            background-color: #750000;
         }
 
         .action-buttons .button:last-child {
-            background-color: #a00000; /* Orange for Watch Later */
+            background-color: #a00000;
         }
 
         .action-buttons .button:last-child:hover {
-            background-color: #750000; /* Darker orange on hover */
+            background-color: #750000; 
         }
 
         .favorites-watchlist-buttons .button {
-            background-color: #b90000; /* Default blue */
+            background-color: #b90000;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -315,22 +307,21 @@
         }
 
         .favorites-watchlist-buttons .button:hover {
-            background-color: #830000; /* Darker blue on hover */
+            background-color: #830000;
         }
 
         .favorites-watchlist-buttons .button:first-child {
-            margin-bottom: 10px; /* Space between the two buttons */
+            margin-bottom: 10px;
         }
 
-        /* Shared Styles for Search, Favorites, and Watchlist */
         #favoritesList, #watchlistList {
             display: flex;
-            flex-direction: column; /* Stack the items vertically */
-            gap: 20px; /* Add space between items */
+            flex-direction: column;
+            gap: 20px;
         }
 
         #favoritesList .movie-item, #watchlistList .movie-item {
-            background-color: #c78080; /* Similar background color */
+            background-color: #c78080;
             border-radius: 8px;
             padding: 10px;
             display: flex;
@@ -372,7 +363,6 @@
             font-family: 'Arial', sans-serif;
         }
 
-        /* Grid view for Favorites and Watchlist */
         #favoritesList.grid-view, #watchlistList.grid-view {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -405,7 +395,6 @@
             <div class="header-buttons" style="display: flex; align-items: center;">
                 <a href="index.html" type="button" class="button">Back to Homepage</a>
                 <button id="toggleView" type="button" class="button">Switch to Grid View</button>
-                <!-- New button container -->
                 <div class="favorites-watchlist-buttons" style="display: flex; flex-direction: column; margin-left: 20px;">
                     <button id="viewFavorites" class="button" style="margin-bottom: 10px;">View My Favorites</button>
                     <button id="viewWatchlist" class="button">View My Watchlist</button>
@@ -422,14 +411,13 @@
     </form>
     
     <div id="pagingControls" style="text-align: center; margin-top: 20px;"></div>
-    <div id="searchResults" class="list-view"></div> <!-- Default view is list view -->
+    <div id="searchResults" class="list-view"></div>
     
     <div id="sidePanel" class="side-panel" style="display: none;">
         <button id="closePanel" style="float: right;">Close</button>
         <div id="movieDetails"></div>
     </div>
 
-    <!-- Actor Details Pop-up Box -->
     <div id="actorDetailsPopup" class="popup-box" style="display: none;">
         <div class="popup-content">
             <button id="closePopup" class="button" style="float: right;">Close</button>
@@ -440,7 +428,6 @@
         </div>
     </div>
 
-    <!-- Templates -->
     <script id="search-results-template" type="text/template">
         {{#movies}}
         <div class="movie-item" data-id="{{id}}">
@@ -475,7 +462,6 @@
                     {{/cast}}
                 </div>
                 
-                <!-- Add buttons for Favorites and Watch Later -->
                 <div class="action-buttons">
                     <button id="addToFavorites" class="button">Add to Favorites</button>
                     <button id="addToWatchLater" class="button">Add to Watch Later</button>
@@ -494,11 +480,17 @@
     
         $(document).ready(function () {
             let currentPage = 1;
-            const favorites = [];
-            const watchlist = [];
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
 
-    
-            // Toggle between list and grid views
+            function saveFavorites() {
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            }
+
+            function saveWatchlist() {
+                localStorage.setItem('watchlist', JSON.stringify(watchlist));
+            }
+            
             $('#toggleView').on('click', function () {
                 const currentView = $('#searchResults').hasClass('list-view') ? 'list' : 'grid';
                 if (currentView === 'list') {
@@ -510,14 +502,12 @@
                 }
             });
     
-            // Search form handling
             $('#searchForm').on('submit', function (e) {
                 e.preventDefault();
                 currentPage = 1;
                 searchMovies();
             });
     
-            // Search for movies
             function searchMovies() {
                 const query = $('#searchQuery').val();
                 if (!query) {
@@ -551,7 +541,6 @@
                 });
             }
     
-            // Update page controls
             function updatePageControls(totalPages) {
                 let pageControlsHtml = 'Page: ';
     
@@ -568,17 +557,15 @@
                 });
             }
     
-            // Animate movies when they appear on screen
             function animateMovies() {
                 $('.movie-item').each(function (index) {
                     const element = $(this);
                     setTimeout(function () {
                         element.addClass('visible');
-                    }, index * 100); // Stagger animation
+                    }, index * 100); 
                 });
             }
     
-            // Show movie details (with cast) in the side panel
             $(document).on('click', '.movie-title', function (e) {
                 e.preventDefault();
 
@@ -588,7 +575,6 @@
 
                 $.when($.getJSON(movieDetailsUrl), $.getJSON(creditsUrl))
                     .done((movieData, creditsData) => {
-                        // Process movie details
                         const movieDetails = {
                             poster: movieData[0].poster_path
                                 ? `${IMAGE_BASE_URL}${movieData[0].poster_path}`
@@ -602,9 +588,8 @@
                             rating: movieData[0].vote_average || 'N/A',
                         };
 
-                        // Process cast information (limit to top 5)
                         const cast = creditsData[0].cast.slice(0, 5).map((actor) => ({
-                            actorId: actor.id,  // Add actorId to the object
+                            actorId: actor.id,
                             name: actor.name,
                             character: actor.character || 'Unknown',
                             profile: actor.profile_path
@@ -614,7 +599,6 @@
 
                         movieDetails.cast = cast;
 
-                        // Render details with Mustache
                         const template = $('#movie-details-template').html();
                         const rendered = Mustache.render(template, movieDetails);
                         $('#movieDetails').html(rendered);
@@ -625,13 +609,11 @@
                     });
             });
 
-
-            // Search for movies with the clicked actor in the top cast
             $(document).on('click', '.actor-name', function (e) {
                 e.preventDefault();
 
-                const actorName = $(this).data('actor'); // Get the actor's name from the data attribute
-                searchActorMovies(actorName); // Use the searchActorMovies function with the actor's name
+                const actorName = $(this).data('actor');
+                searchActorMovies(actorName);
             });
 
             $('#viewFavorites').on('click', function () {
@@ -665,9 +647,9 @@
                     movies: list.map(movie => ({
                         id: movie.id,
                         title: movie.title,
-                        poster: movie.poster || 'default-poster.jpg', // Use a default poster if not available
+                        poster: movie.poster || 'default-poster.jpg', 
                         description: movie.description || 'No description available',
-                        listType: title.toLowerCase() // Used for removal functionality
+                        listType: title.toLowerCase()
                     }))
                 });
 
@@ -676,7 +658,6 @@
 
 
 
-            // Function to search for actors and fetch their movies (only those in the top cast)
             function searchActorMovies(query) {
                 const actorSearchUrl = `${BASE_URL}/search/person?query=${encodeURIComponent(query)}&page=1&api_key=${API_KEY}`;
 
@@ -734,24 +715,20 @@
             }
 
 
-            // Search for actors and display movies they are in
             $('#actorSearchButton').on('click', function () {
-                const query = $('#searchQuery').val().trim();  // Get the input value and trim extra spaces
+                const query = $('#searchQuery').val().trim();
                 if (!query) {
                     alert("Please enter an actor's name to search.");
                     return;
                 }
 
-                // If there's a search query, search for movies involving the actor
                 searchActorMovies(query);
             });
 
-            // Show actor details pop-up when actor name in the side panel is clicked
             $(document).on('click', '.cast-name', function () {
                 const actorName = $(this).text();
-                const actorId = $(this).data('actor-id');  // Actor's ID stored in data attribute
+                const actorId = $(this).data('actor-id');
 
-                // Fetch actor details
                 const actorDetailsUrl = `${BASE_URL}/person/${actorId}?api_key=${API_KEY}`;
 
                 $.getJSON(actorDetailsUrl, function (data) {
@@ -761,35 +738,28 @@
                         biography: data.biography ? data.biography : 'Biography not available.',
                     };
 
-                    // Update the popup content
                     $('#actorName').text(actorDetails.name);
                     $('#actorImage').attr('src', actorDetails.image);
                     $('#actorBiography').text(actorDetails.biography);
 
-                    // Show the pop-up box
                     $('#actorDetailsPopup').show();
                 }).fail(function () {
                     alert('Failed to fetch actor details.');
                 });
             });
 
-            // Close the actor details pop-up box
             $('#closePopup').on('click', function () {
                 $('#actorDetailsPopup').hide();
             });
 
-            // Trigger search for movies by this actor from the pop-up box
             $('#searchActorMoviesInPopup').on('click', function () {
-                const actorName = $('#actorName').text();  // Get actor's name from the pop-up
+                const actorName = $('#actorName').text();  
 
-                // Use the actor's name to search for their movies
                 searchActorMovies(actorName);
 
-                // Close the pop-up box after search is triggered
                 $('#actorDetailsPopup').hide();
             });
 
-                        // Fetch and display popular movies
                         $('#popularMoviesButton').on('click', function () {
                 const popularMoviesUrl = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
 
@@ -821,17 +791,15 @@
                 });
             });
 
-            // Animate movies (reuse the existing animation function)
             function animateMovies() {
                 $('.movie-item').each(function (index) {
                     const element = $(this);
                     setTimeout(function () {
                         element.addClass('visible');
-                    }, index * 100); // Stagger animation
+                    }, index * 100); 
                 });
             }
 
-            // Add to Favorites button click handler
             $(document).on('click', '#addToFavorites', function () {
                 const movieContainer = $(this).closest('.movie-details-container');
                 const movieId = movieContainer.data('id');
@@ -841,6 +809,7 @@
 
                 if (!favorites.find(movie => movie.id === movieId)) {
                     favorites.push({ id: movieId, title: movieTitle, poster: moviePoster, description: movieDescription });
+                    saveFavorites();
                     alert(`${movieTitle} added to Favorites!`);
                 } else {
                     alert(`${movieTitle} is already in Favorites!`);
@@ -848,7 +817,6 @@
             });
 
 
-            // Add to Watch Later button click handler
             $(document).on('click', '#addToWatchLater', function () {
                 const movieContainer = $(this).closest('.movie-details-container');
                 const movieId = movieContainer.data('id');
@@ -858,13 +826,31 @@
 
                 if (!watchlist.find(movie => movie.id === movieId)) {
                     watchlist.push({ id: movieId, title: movieTitle, poster: moviePoster, description: movieDescription });
+                    saveWatchlist();
                     alert(`${movieTitle} added to your Watch Later list!`);
                 } else {
                     alert(`${movieTitle} is already in your Watch Later list!`);
                 }
             });
+
+            $(document).on('click', '.remove-from-list', function () {
+                const movieId = $(this).data('id');
+                const listType = $(this).data('list');
+                const list = listType === 'favorites' ? favorites : watchlist;
+
+                const index = list.findIndex(movie => movie.id === movieId);
+                if (index > -1) {
+                    list.splice(index, 1);
+                    listType === 'favorites' ? saveFavorites() : saveWatchlist();
+                    renderList(list, listType.charAt(0).toUpperCase() + listType.slice(1));
+                }
+            });
+
+            $(document).ready(function () {
+                if (favorites.length) renderList(favorites, 'Favorites');
+                if (watchlist.length) renderList(watchlist, 'Watchlist');
+            });
     
-            // Close the side panel
             $('#closePanel').on('click', function () {
                 $('#sidePanel').hide();
             });
