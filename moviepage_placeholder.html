@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search - Single Page Application</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js"></script>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #ff7070;
+            margin: 20px;
+        }
+        .book-details-container {
+            background-color: rgb(255, 255, 255);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background-color: #6e0000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid hsl(204, 24%, 27%);
+        }
+        form {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            padding: 16px 32px;
+            border-radius: 4px;
+            background-color: rgb(255, 208, 208);
+            color: black;
+            border: 2px solid rgb(175, 0, 0);
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 16px;
+            transition-duration: 0.5s;
+        }
+        .button:hover {
+            background-color: rgb(255, 96, 96);
+            color: black;
+        }
+        .container {
+            background-color: #770d0d;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .book-item {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+            background-color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .book-item.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .book-item:hover {
+            background-color: #ffe8e8;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .book-item img {
+            margin-right: 20px;
+            border-radius: 4px;
+            width: 128px;
+            height: auto;
+        }
+        .book-item h3 {
+            margin: 0;
+            font-size: 1.7em;
+            color: #222;
+            font-family: 'Georgia', serif;
+        }
+        .book-item p {
+            margin: 5px 0;
+            font-size: 1em;
+            line-height: 1.5em;
+            font-family: 'Arial', sans-serif;
+        }
+        .side-panel {
+            width: 50%;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            background-color: #ffffff;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #searchResults.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjust size */
+            gap: 20px;
+        }
+
+        #searchResults.grid-view .book-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Page buttons style */
+        .page-button.selected {
+            background-color: rgb(158, 0, 0);
+            color: white;
+            border: 2px solid rgb(180, 94, 94);
+        }
+
+        .cast-container {
+            display: flex;
+            gap: 20px; /* Space between cast members */
+            margin-top: 10px;
+            flex-wrap: wrap; /* Ensure wrapping if there are too many members */
+        }
+
+        .cast-member {
+            text-align: center;
+            flex: 1; /* Distributes available space evenly */
+            max-width: 100px; /* Limit the width of each cast member */
+        }
+
+        .cast-photo {
+            width: 92px;
+            height: 138px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .cast-name {
+            margin: 5px 0 3px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .cast-character {
+            margin: 0;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .popup-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        }
+
+        .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 60%;
+        max-width: 500px;
+        text-align: center;
+        }
+
+        /* Actor's Name Text */
+        #actorDetailsPopup h3 {
+            text-align: justify; /* Center the text horizontally */
+            margin-top: 0; /* Remove any default margin at the top */
+            font-size: 1.5em; /* Adjust font size as necessary */
+            font-weight: bold; /* Optional: make it bold for emphasis */
+        }
+
+
+        /* Actor image (styled as per the original layout) */
+        #actorImage {
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        /* Biography container - added scrolling functionality */
+        #actorBiography {
+            max-height: 200px; /* Fixed height for the biography area */
+            overflow-y: auto; /* Make the biography scrollable */
+            margin-top: 15px;
+            padding-right: 10px; /* Add a little padding to avoid text touching the scrollbar */
+        }
+
+        /* Close button for the actor pop-up */
+        #closePopup {
+            background-color: #f44336; /* Red background for the close button */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 10px; /* Optional: add some space from the top */
+        }
+
+        /* Hover effect for the close button */
+        #closePopup:hover {
+            background-color: #d32f2f;
+        }
+
+        .actor-name-link {
+            color: #007bff; /* Blue color like a typical hyperlink */
+            text-decoration: underline;
+            cursor: pointer; /* Pointer cursor for interactivity */
+        }
+
+        .actor-name-link:hover {
+            color: #0056b3; /* Darker blue on hover */
+        }
+
+        .movie-item {
+            background-color: white; /* White background */
+            border-radius: 10px;    /* Rounded edges */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            margin: 10px;           /* Space around each item */
+            padding: 15px;          /* Inner padding */
+            display: flex;          /* Default layout for list view */
+            align-items: center;    /* Align content vertically */
+            gap: 10px;              /* Space between elements */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover effects */
+        }
+
+        /* Adjust for grid view */
+        .grid-view .movie-item {
+            flex-direction: column; /* Stack content vertically */
+            align-items: flex-start; /* Align to the start */
+            text-align: center;     /* Center text in grid view */
+        }
+
+        /* Hover effect */
+        .movie-item:hover {
+            transform: scale(1.02); /* Slightly enlarge */
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15); /* Darker shadow */
+        }
+
+        /* Style for the movie title link */
+        .movie-item a.movie-title {
+            text-decoration: none;  /* Remove underline */
+            color: #0077cc;         /* Link color */
+            font-weight: bold;      /* Emphasize the title */
+        }
+
+        .movie-item a.movie-title:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        .movie-item img {
+            max-width: 100px; /* Adjust width for smaller images */
+            height: auto;     /* Maintain aspect ratio */
+            border-radius: 5px; /* Keep the rounded edges */
+            object-fit: cover;  /* Ensures consistent scaling */
+        }
+
+        .grid-view .movie-item img {
+            max-width: 130px; /* Larger for grid */
+        }
+
+        .list-view .movie-item img {
+            max-width: 100px; /* Smaller for list */
+        }
+
+        .action-buttons {
+            margin-top: 20px; /* Add spacing between movie details and buttons */
+        }
+
+        .action-buttons .button {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #a00000; /* Default green color for the buttons */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .action-buttons .button:hover {
+            background-color: #750000; /* Slightly darker green on hover */
+        }
+
+        .action-buttons .button:last-child {
+            background-color: #a00000; /* Orange for Watch Later */
+        }
+
+        .action-buttons .button:last-child:hover {
+            background-color: #750000; /* Darker orange on hover */
+        }
+
+        .favorites-watchlist-buttons .button {
+            background-color: #b90000; /* Default blue */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .favorites-watchlist-buttons .button:hover {
+            background-color: #830000; /* Darker blue on hover */
+        }
+
+        .favorites-watchlist-buttons .button:first-child {
+            margin-bottom: 10px; /* Space between the two buttons */
+        }
+
+        /* Shared Styles for Search, Favorites, and Watchlist */
+        #favoritesList, #watchlistList {
+            display: flex;
+            flex-direction: column; /* Stack the items vertically */
+            gap: 20px; /* Add space between items */
+        }
+
+        #favoritesList .movie-item, #watchlistList .movie-item {
+            background-color: #c78080; /* Similar background color */
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: transform 0.6s ease, opacity 0.6s ease;
+        }
+
+        #favoritesList .movie-item.visible, #watchlistList .movie-item.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #favoritesList .movie-item:hover, #watchlistList .movie-item:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #favoritesList .movie-item img, #watchlistList .movie-item img {
+            margin-right: 20px;
+            width: 128px;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        #favoritesList .movie-item h3, #watchlistList .movie-item h3 {
+            margin: 0;
+            font-size: 1.7em;
+            color: #222;
+            font-family: 'Georgia', serif;
+        }
+
+        #favoritesList .movie-item p, #watchlistList .movie-item p {
+            margin: 5px 0;
+            font-size: 1em;
+            line-height: 1.5em;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Grid view for Favorites and Watchlist */
+        #favoritesList.grid-view, #watchlistList.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        #favoritesList.grid-view .movie-item, #watchlistList.grid-view .movie-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .favorites-watchlist-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-family: 'Georgia', serif; color: #ffd8d8;">Movie Search - Single Page Application</h1>
+            <div class="header-buttons" style="display: flex; align-items: center;">
+                <a href="index.html" type="button" class="button">Back to Homepage</a>
+                <button id="toggleView" type="button" class="button">Switch to Grid View</button>
+                <!-- New button container -->
+                <div class="favorites-watchlist-buttons" style="display: flex; flex-direction: column; margin-left: 20px;">
+                    <button id="viewFavorites" class="button" style="margin-bottom: 10px;">View My Favorites</button>
+                    <button id="viewWatchlist" class="button">View My Watchlist</button>
+                </div>
+            </div>
+        </header>        
+    </div>
+    </header>
+    
+    <form id="searchForm" style="padding: 15px">
+        <input type="text" id="searchQuery" style="width: 300px; height: 40px;" placeholder="Enter movie/actor name"><br><br>
+        <button type="submit" class="button">Search Movies by Keyword</button>
+        <button id="actorSearchButton" type="button" class="button">Search Movies by Actors</button>
+    </form>
+    
+    <div id="pagingControls" style="text-align: center; margin-top: 20px;"></div>
+    <div id="searchResults" class="list-view"></div> <!-- Default view is list view -->
+    
+    <div id="sidePanel" class="side-panel" style="display: none;">
+        <button id="closePanel" style="float: right;">Close</button>
+        <div id="movieDetails"></div>
+    </div>
+
+    <!-- Actor Details Pop-up Box -->
+    <div id="actorDetailsPopup" class="popup-box" style="display: none;">
+        <div class="popup-content">
+            <button id="closePopup" class="button" style="float: right;">Close</button>
+            <h3 id="actorName"></h3>
+            <img id="actorImage" src="" alt="Actor Image" class="actor-image">
+            <p id="actorBiography"></p>
+            <button id="searchActorMoviesInPopup" class="button">Search Movies by This Actor</button>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <script id="search-results-template" type="text/template">
+        {{#movies}}
+        <div class="movie-item" data-id="{{id}}">
+            <img src="{{poster}}" alt="{{title}}" style="border-radius: 5px; max-width: 128px; height: auto;">
+            <div>
+                <h3><a href="#" data-id="{{id}}" class="movie-title">{{title}}</a></h3>
+                <p><strong>Release Date:</strong> {{releaseDate}}</p>
+                <p><strong>Overview:</strong> {{overview}}</p>
+            </div>
+        </div>
+        {{/movies}}
+    </script>
+
+    <script id="movie-details-template" type="text/template">
+        <div class="movie-details-container" data-id="{{id}}">
+            <img src="{{poster}}" alt="Movie Poster" class="movie-poster">
+            <div>
+                <h3>{{title}}</h3>
+                <p><strong>Release Date:</strong> {{releaseDate}}</p>
+                <p><strong>Genres:</strong> {{genres}}</p>
+                <p><strong>Rating:</strong> {{rating}}</p>
+                <p><strong>Overview:</strong> {{overview}}</p>
+    
+                <h4>Top Cast:</h4>
+                <div class="cast-container">
+                    {{#cast}}
+                    <div class="cast-member">
+                        <img src="{{profile}}" alt="{{name}}" class="cast-photo">
+                        <p class="cast-name actor-name-link" data-actor-id="{{actorId}}">{{name}}</p>
+                        <p class="cast-character">as {{character}}</p>
+                    </div>
+                    {{/cast}}
+                </div>
+                
+                <!-- Add buttons for Favorites and Watch Later -->
+                <div class="action-buttons">
+                    <button id="addToFavorites" class="button">Add to Favorites</button>
+                    <button id="addToWatchLater" class="button">Add to Watch Later</button>
+                </div>
+            </div>
+        </div>
+    </script>
+    
+
+    <script>
+        const API_KEY = 'ee8651236d692523aa4678cef39fd7ed';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w154';
+        const CAST_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w92';
+        const RESULTS_PER_PAGE = 10;
+    
+        $(document).ready(function () {
+            let currentPage = 1;
+            const favorites = [];
+            const watchlist = [];
+
+    
+            // Toggle between list and grid views
+            $('#toggleView').on('click', function () {
+                const currentView = $('#searchResults').hasClass('list-view') ? 'list' : 'grid';
+                if (currentView === 'list') {
+                    $('#searchResults').removeClass('list-view').addClass('grid-view');
+                    $(this).text('Switch to List View');
+                } else {
+                    $('#searchResults').removeClass('grid-view').addClass('list-view');
+                    $(this).text('Switch to Grid View');
+                }
+            });
+    
+            // Search form handling
+            $('#searchForm').on('submit', function (e) {
+                e.preventDefault();
+                currentPage = 1;
+                searchMovies();
+            });
+    
+            // Search for movies
+            function searchMovies() {
+                const query = $('#searchQuery').val();
+                if (!query) {
+                    alert('Please enter a search term.');
+                    return;
+                }
+    
+                const url = `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${currentPage}&api_key=${API_KEY}`;
+    
+                $.getJSON(url, function (data) {
+                    const movies = data.results.map((item) => ({
+                        id: item.id,
+                        title: item.title,
+                        poster: item.poster_path
+                            ? `${IMAGE_BASE_URL}${item.poster_path}`
+                            : 'https://via.placeholder.com/128x192',
+                        releaseDate: item.release_date || 'Unknown',
+                        overview: item.overview
+                            ? item.overview.substring(0, 150) + '...'
+                            : 'No overview available',
+                    }));
+    
+                    const template = $('#search-results-template').html();
+                    const rendered = Mustache.render(template, { movies });
+    
+                    $('#searchResults').html(rendered);
+                    updatePageControls(data.total_pages);
+                    animateMovies();
+                }).fail(function () {
+                    $('#searchResults').html('<p>Failed to fetch movies!</p>');
+                });
+            }
+    
+            // Update page controls
+            function updatePageControls(totalPages) {
+                let pageControlsHtml = 'Page: ';
+    
+                for (let i = 1; i <= totalPages; i++) {
+                    pageControlsHtml += `<button class="page-button ${
+                        i === currentPage ? 'selected' : ''
+                    }" data-page="${i}">${i}</button> `;
+                }
+    
+                $('#pagingControls').html(pageControlsHtml);
+                $('.page-button').on('click', function () {
+                    currentPage = $(this).data('page');
+                    searchMovies();
+                });
+            }
+    
+            // Animate movies when they appear on screen
+            function animateMovies() {
+                $('.movie-item').each(function (index) {
+                    const element = $(this);
+                    setTimeout(function () {
+                        element.addClass('visible');
+                    }, index * 100); // Stagger animation
+                });
+            }
+    
+            // Show movie details (with cast) in the side panel
+            $(document).on('click', '.movie-title', function (e) {
+                e.preventDefault();
+
+                const movieId = $(this).data('id');
+                const movieDetailsUrl = `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`;
+                const creditsUrl = `${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`;
+
+                $.when($.getJSON(movieDetailsUrl), $.getJSON(creditsUrl))
+                    .done((movieData, creditsData) => {
+                        // Process movie details
+                        const movieDetails = {
+                            poster: movieData[0].poster_path
+                                ? `${IMAGE_BASE_URL}${movieData[0].poster_path}`
+                                : 'https://via.placeholder.com/128x192',
+                            title: movieData[0].title,
+                            releaseDate: movieData[0].release_date || 'Unknown',
+                            genres: movieData[0].genres
+                                .map((genre) => genre.name)
+                                .join(', ') || 'N/A',
+                            overview: movieData[0].overview || 'No overview available',
+                            rating: movieData[0].vote_average || 'N/A',
+                        };
+
+                        // Process cast information (limit to top 5)
+                        const cast = creditsData[0].cast.slice(0, 5).map((actor) => ({
+                            actorId: actor.id,  // Add actorId to the object
+                            name: actor.name,
+                            character: actor.character || 'Unknown',
+                            profile: actor.profile_path
+                                ? `${CAST_IMAGE_BASE_URL}${actor.profile_path}`
+                                : 'https://via.placeholder.com/92x138',
+                        }));
+
+                        movieDetails.cast = cast;
+
+                        // Render details with Mustache
+                        const template = $('#movie-details-template').html();
+                        const rendered = Mustache.render(template, movieDetails);
+                        $('#movieDetails').html(rendered);
+                        $('#sidePanel').show();
+                    })
+                    .fail(() => {
+                        alert('Failed to load movie details.');
+                    });
+            });
+
+
+            // Search for movies with the clicked actor in the top cast
+            $(document).on('click', '.actor-name', function (e) {
+                e.preventDefault();
+
+                const actorName = $(this).data('actor'); // Get the actor's name from the data attribute
+                searchActorMovies(actorName); // Use the searchActorMovies function with the actor's name
+            });
+
+            $('#viewFavorites').on('click', function () {
+                renderList(favorites, 'Favorites');
+            });
+
+            $('#viewWatchlist').on('click', function () {
+                renderList(watchlist, 'Watchlist');
+            });
+
+            function renderList(list, title) {
+                if (list.length === 0) {
+                    $('#searchResults').html(`<p>Your ${title} is empty!</p>`);
+                    return;
+                }
+
+                const template = `
+                    <h2>${title}</h2>
+                    <div class="search-results-container">
+                        {{#movies}}
+                        <div class="movie-details-container" data-id="{{id}}">
+                            <img src="{{poster}}" alt="{{title}} Poster">
+                            <h3>{{title}}</h3>
+                            <p>{{description}}</p>
+                            <button class="remove-from-list" data-list="{{listType}}" data-id="{{id}}">Remove</button>
+                        </div>
+                        {{/movies}}
+                    </div>
+                `;
+                const rendered = Mustache.render(template, { 
+                    movies: list.map(movie => ({
+                        id: movie.id,
+                        title: movie.title,
+                        poster: movie.poster || 'default-poster.jpg', // Use a default poster if not available
+                        description: movie.description || 'No description available',
+                        listType: title.toLowerCase() // Used for removal functionality
+                    }))
+                });
+
+                $('#searchResults').html(rendered);
+            }
+
+
+
+            // Function to search for actors and fetch their movies (only those in the top cast)
+            function searchActorMovies(query) {
+                const actorSearchUrl = `${BASE_URL}/search/person?query=${encodeURIComponent(query)}&page=1&api_key=${API_KEY}`;
+
+                $.getJSON(actorSearchUrl, function (data) {
+                    if (data.results.length === 0) {
+                        $('#searchResults').html('<p>No actors found.</p>');
+                        return;
+                    }
+
+                    const actorId = data.results[0].id;
+                    const moviesUrl = `${BASE_URL}/person/${actorId}/movie_credits?api_key=${API_KEY}`;
+
+                    $.getJSON(moviesUrl, function (creditsData) {
+                        if (creditsData.cast.length === 0) {
+                            $('#searchResults').html('<p>No movies found for this actor.</p>');
+                            return;
+                        }
+
+                        const topCastMovies = creditsData.cast.filter(movie => movie.order <= 4);
+
+                        if (topCastMovies.length === 0) {
+                            $('#searchResults').html('<p>No movies found with this actor in the top cast.</p>');
+                            return;
+                        }
+
+                        const movies = topCastMovies.map(movie => ({
+                            id: movie.id,
+                            title: movie.title,
+                            poster: movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/128x192',
+                            releaseDate: movie.release_date || 'Unknown',
+                            overview: movie.overview ? movie.overview.substring(0, 150) + '...' : 'No overview available'
+                        }));
+
+                        const template = `
+                            {{#movies}}
+                            <div class="movie-item">
+                                <img src="{{poster}}" alt="{{title}}">
+                                <div>
+                                    <h3><a href="#" data-id="{{id}}" class="movie-title">{{title}}</a></h3>
+                                    <p><strong>Release Date:</strong> {{releaseDate}}</p>
+                                    <p><strong>Overview:</strong> {{overview}}</p>
+                                </div>
+                            </div>
+                            {{/movies}}
+                        `;
+                        const rendered = Mustache.render(template, { movies });
+                        $('#searchResults').html(rendered);
+                        animateMovies();
+                    }).fail(function () {
+                        $('#searchResults').html('<p>Failed to fetch movies for this actor.</p>');
+                    });
+                }).fail(function () {
+                    $('#searchResults').html('<p>Failed to search for the actor.</p>');
+                });
+            }
+
+
+            // Search for actors and display movies they are in
+            $('#actorSearchButton').on('click', function () {
+                const query = $('#searchQuery').val().trim();  // Get the input value and trim extra spaces
+                if (!query) {
+                    alert("Please enter an actor's name to search.");
+                    return;
+                }
+
+                // If there's a search query, search for movies involving the actor
+                searchActorMovies(query);
+            });
+
+            // Show actor details pop-up when actor name in the side panel is clicked
+            $(document).on('click', '.cast-name', function () {
+                const actorName = $(this).text();
+                const actorId = $(this).data('actor-id');  // Actor's ID stored in data attribute
+
+                // Fetch actor details
+                const actorDetailsUrl = `${BASE_URL}/person/${actorId}?api_key=${API_KEY}`;
+
+                $.getJSON(actorDetailsUrl, function (data) {
+                    const actorDetails = {
+                        name: data.name,
+                        image: data.profile_path ? `${CAST_IMAGE_BASE_URL}${data.profile_path}` : 'https://via.placeholder.com/92x138',
+                        biography: data.biography ? data.biography : 'Biography not available.',
+                    };
+
+                    // Update the popup content
+                    $('#actorName').text(actorDetails.name);
+                    $('#actorImage').attr('src', actorDetails.image);
+                    $('#actorBiography').text(actorDetails.biography);
+
+                    // Show the pop-up box
+                    $('#actorDetailsPopup').show();
+                }).fail(function () {
+                    alert('Failed to fetch actor details.');
+                });
+            });
+
+            // Close the actor details pop-up box
+            $('#closePopup').on('click', function () {
+                $('#actorDetailsPopup').hide();
+            });
+
+            // Trigger search for movies by this actor from the pop-up box
+            $('#searchActorMoviesInPopup').on('click', function () {
+                const actorName = $('#actorName').text();  // Get actor's name from the pop-up
+
+                // Use the actor's name to search for their movies
+                searchActorMovies(actorName);
+
+                // Close the pop-up box after search is triggered
+                $('#actorDetailsPopup').hide();
+            });
+
+                        // Fetch and display popular movies
+                        $('#popularMoviesButton').on('click', function () {
+                const popularMoviesUrl = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
+
+                $.getJSON(popularMoviesUrl, function (data) {
+                    if (data.results.length === 0) {
+                        $('#searchResults').html('<p>No popular movies found.</p>');
+                        return;
+                    }
+
+                    const movies = data.results.map((item) => ({
+                        id: item.id,
+                        title: item.title,
+                        poster: item.poster_path
+                            ? `${IMAGE_BASE_URL}${item.poster_path}`
+                            : 'https://via.placeholder.com/128x192',
+                        releaseDate: item.release_date || 'Unknown',
+                        overview: item.overview
+                            ? item.overview.substring(0, 150) + '...'
+                            : 'No overview available',
+                    }));
+
+                    const template = $('#search-results-template').html();
+                    const rendered = Mustache.render(template, { movies });
+
+                    $('#searchResults').html(rendered);
+                    animateMovies();
+                }).fail(function () {
+                    $('#searchResults').html('<p>Failed to fetch popular movies!</p>');
+                });
+            });
+
+            // Animate movies (reuse the existing animation function)
+            function animateMovies() {
+                $('.movie-item').each(function (index) {
+                    const element = $(this);
+                    setTimeout(function () {
+                        element.addClass('visible');
+                    }, index * 100); // Stagger animation
+                });
+            }
+
+            // Add to Favorites button click handler
+            $(document).on('click', '#addToFavorites', function () {
+                const movieContainer = $(this).closest('.movie-details-container');
+                const movieId = movieContainer.data('id');
+                const movieTitle = movieContainer.find('h3').text();
+                const moviePoster = movieContainer.find('img').attr('src');
+                const movieDescription = movieContainer.find('p').text();
+
+                if (!favorites.find(movie => movie.id === movieId)) {
+                    favorites.push({ id: movieId, title: movieTitle, poster: moviePoster, description: movieDescription });
+                    alert(`${movieTitle} added to Favorites!`);
+                } else {
+                    alert(`${movieTitle} is already in Favorites!`);
+                }
+            });
+
+
+            // Add to Watch Later button click handler
+            $(document).on('click', '#addToWatchLater', function () {
+                const movieContainer = $(this).closest('.movie-details-container');
+                const movieId = movieContainer.data('id');
+                const movieTitle = movieContainer.find('h3').text();
+                const moviePoster = movieContainer.find('img').attr('src');
+                const movieDescription = movieContainer.find('p').text();
+
+                if (!watchlist.find(movie => movie.id === movieId)) {
+                    watchlist.push({ id: movieId, title: movieTitle, poster: moviePoster, description: movieDescription });
+                    alert(`${movieTitle} added to your Watch Later list!`);
+                } else {
+                    alert(`${movieTitle} is already in your Watch Later list!`);
+                }
+            });
+    
+            // Close the side panel
+            $('#closePanel').on('click', function () {
+                $('#sidePanel').hide();
+            });
+        });
+
+
+    </script>
+    
+</body>
+</html>
